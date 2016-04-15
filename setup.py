@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+from os import walk
+from os.path import join, relpath, dirname
+
 from setuptools import setup
 
-requires = ['feedgenerator >= 1.6', 'jinja2 >= 2.7', 'pygments', 'docutils',
+requires = ['feedgenerator >= 1.8', 'jinja2 >= 2.7', 'pygments', 'docutils',
             'pytz >= 0a', 'blinker', 'unidecode', 'six >= 1.4',
             'python-dateutil']
 
@@ -14,14 +17,12 @@ entry_points = {
     ]
 }
 
-
 README = open('README.rst').read()
 CHANGELOG = open('docs/changelog.rst').read()
 
-
 setup(
     name="pelican",
-    version="3.5.0",
+    version="3.6.4.dev0",
     url='http://getpelican.com/',
     author='Alexis Metaireau',
     author_email='authors@getpelican.com',
@@ -29,7 +30,19 @@ setup(
                 "Markdown input files.",
     long_description=README + '\n' + CHANGELOG,
     packages=['pelican', 'pelican.tools'],
-    include_package_data=True,
+    package_data={
+        # we manually collect the package data, as opposed to using include_package_data=True
+        # because we don't want the tests to be included automatically as package data
+        # (MANIFEST.in is too greedy)
+        'pelican': [
+            relpath(join(root, name), 'pelican')
+            for root, _, names in walk(join('pelican', 'themes')) for name in names
+        ],
+        'pelican.tools': [
+            relpath(join(root, name), join('pelican', 'tools'))
+            for root, _, names in walk(join('pelican', 'tools', 'templates')) for name in names
+        ],
+    },
     install_requires=requires,
     entry_points=entry_points,
     classifiers=[
@@ -42,6 +55,7 @@ setup(
          'Programming Language :: Python :: 3',
          'Programming Language :: Python :: 3.3',
          'Programming Language :: Python :: 3.4',
+         'Programming Language :: Python :: 3.5',
          'Topic :: Internet :: WWW/HTTP',
          'Topic :: Software Development :: Libraries :: Python Modules',
     ],

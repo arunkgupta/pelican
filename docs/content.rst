@@ -35,6 +35,12 @@ this metadata in text files via the following syntax (give your file the
     :authors: Alexis Metaireau, Conan Doyle
     :summary: Short version for index and feeds
 
+Author and tag lists may be semicolon-separated instead, which allows
+you to write authors and tags containing commas::
+
+    :tags: pelican, publishing tool; pelican, bird
+    :authors: Metaireau, Alexis; Doyle, Conan
+
 Pelican implements an extension to reStructuredText to enable support for the
 ``abbr`` HTML tag. To use it, write something like this in your post::
 
@@ -91,7 +97,7 @@ via the ``keywords`` metadata, as is standard in HTML. The two can be used
 interchangeably.
 
 Note that, aside from the title, none of this article metadata is mandatory:
-if the date is not specified and ``DEFAULT_DATE`` is set to ``fs``, Pelican
+if the date is not specified and ``DEFAULT_DATE`` is set to ``'fs'``, Pelican
 will rely on the file's "mtime" timestamp, and the category can be determined
 by the directory in which the file resides. For example, a file located at
 ``python/foobar/myfoobar.rst`` will have a category of ``foobar``. If you would
@@ -157,6 +163,9 @@ the other content will be placed after site generation).
 
 To link to internal content (files in the ``content`` directory), use the
 following syntax for the link target: ``{filename}path/to/file``
+Note: forward slashes, ``/``,
+are the required path separator in the ``{filename}`` directive
+on all operating systems, including Windows.
 
 For example, a Pelican project might be structured like this::
 
@@ -320,11 +329,11 @@ of ``{attach}``, and letting the file's location be determined by the project's
 ``STATIC_SAVE_AS`` and ``STATIC_URL`` settings. (Per-file ``save_as`` and
 ``url`` overrides can still be set in ``EXTRA_PATH_METADATA``.)
 
-Linking to tags and categories
-------------------------------
+Linking to authors, categories, index and tags
+----------------------------------------------
 
-You can link to tags and categories using the ``{tag}tagname`` and
-``{category}foobar`` syntax.
+You can link to authors, categories, index and tags using the ``{author}name``,
+``{category}foobar``, ``{index}`` and ``{tag}tagname`` syntax.
 
 Deprecated internal link syntax
 -------------------------------
@@ -411,22 +420,29 @@ which posts are translations::
 Syntax highlighting
 ===================
 
-Pelican is able to provide colorized syntax highlighting for your code blocks.
-To do so, you have to use the following conventions inside your content files.
+Pelican can provide colorized syntax highlighting for your code blocks.
+To do so, you must use the following conventions inside your content files.
 
-For reStructuredText, use the code-block directive::
+For reStructuredText, use the ``code-block`` directive to specify the type
+of code to be highlighted (in these examples, we'll use ``python``)::
 
-    .. code-block:: identifier
+    .. code-block:: python
 
-       <indented code block goes here>
+       print("Pelican is a static site generator.")
 
-For Markdown, include the language identifier just above the code block,
-indenting both the identifier and code::
+For Markdown, which utilizes the `CodeHilite extension`_ to provide syntax
+highlighting, include the language identifier just above the code block,
+indenting both the identifier and the code::
 
-    A block of text.
+    There are two ways to specify the identifier:
 
-        :::identifier
-        <code goes here>
+        :::python
+        print("The triple-colon syntax will *not* show line numbers.")
+
+    To display line numbers, use a path-less shebang instead of colons:
+
+        #!python
+        print("The path-less shebang syntax *will* show line numbers.")
 
 The specified identifier (e.g. ``python``, ``ruby``) should be one that
 appears on the `list of available lexers <http://pygments.org/docs/lexers/>`_.
@@ -502,11 +518,15 @@ If your articles should be automatically published as a draft (to not accidental
 publish an article before it is finished) include the status in the ``DEFAULT_METADATA``::
 
     DEFAULT_METADATA = {
-	    'status': 'draft',
-	}
-	
+        'status': 'draft',
+    }
+
+To publish a post when the default status is ``draft``, update the post's
+metadata to include ``Status: published``.
+
 .. _W3C ISO 8601: http://www.w3.org/TR/NOTE-datetime
 .. _AsciiDoc: http://www.methods.co.nz/asciidoc/
 .. _pelican-plugins: http://github.com/getpelican/pelican-plugins
 .. _Markdown Extensions: http://pythonhosted.org/Markdown/extensions/
+.. _CodeHilite extension: http://pythonhosted.org/Markdown/extensions/code_hilite.html#syntax
 .. _i18n_subsites plugin: http://github.com/getpelican/pelican-plugins/tree/master/i18n_subsites
